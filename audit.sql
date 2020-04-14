@@ -520,3 +520,105 @@ ORDER BY schema, auditedtable;
 COMMENT ON VIEW audit.tableslist IS $body$
 View showing all tables with auditing set up. Ordered by schema, then table.
 $body$;
+
+/*
+ *  Add auditing support to a table of strong entity, version 1.
+ *  Strong entities (thus, without table_relations) WITH ignored columns
+ *  Pg doesn't allow variadic calls with 0 params, so provide a wrapper.
+ */
+CREATE OR REPLACE FUNCTION audit.audit_strong_entity (sq_table_name regclass, ignored_cols text[], code_column text)
+    RETURNS void
+    AS $body$
+    SELECT audit.audit_table($1, BOOLEAN 't', BOOLEAN 't', $2, ARRAY[ARRAY[]::text[]]::text[], $3);
+
+$body$
+LANGUAGE sql;
+
+-- comments
+COMMENT ON FUNCTION audit.audit_strong_entity (regclass, text[], text) IS $body$
+
+Add auditing support to a table OF strong entity, version 1. Strong entities (thus, without table_relations) with ignored columns
+
+Arguments: 
+    sq_table_name: Table name, schema qualified if not on search_path 
+    ignored_cols: Columns to exclude from update diffs, ignore updates that change only ignored cols
+    code_column: Column that represents an end-user - meaningful identifier for audited entity
+
+$body$;
+
+
+/*
+ *  Add auditing support to a table of strong entity, version 2.
+ *  Strong entities (thus, without table_relations) WITHOUT ignored columns
+ *  Pg doesn't allow variadic calls with 0 params, so provide a wrapper.
+ */
+CREATE OR REPLACE FUNCTION audit.audit_strong_entity (sq_table_name regclass, code_column text)
+    RETURNS void
+    AS $body$
+    SELECT
+        audit.audit_table ($1, $2);
+
+$body$
+LANGUAGE sql;
+
+-- comments
+COMMENT ON FUNCTION audit.audit_strong_entity (regclass, text) IS $body$
+
+Add auditing support to a table of strong entity, version 2. Strong entities (thus, without table_relations) without ignored columns
+
+Arguments: 
+    sq_table_name: table name, schema qualified if not on search_path
+    code_column: column that represents an end-user - meaningful identifier for audited entity
+
+$body$;
+
+
+/*
+ *  Add auditing support to a table of weak entity, version 1.
+ *  Weak entities (thus, without code_column) WITH ignored columns
+ *  Pg doesn't allow variadic calls with 0 params, so provide a wrapper.
+ */
+CREATE OR REPLACE FUNCTION audit.audit_weak_entity (sq_table_name regclass, ignored_cols text[], table_relations text[][])
+    RETURNS void
+    AS $body$
+    SELECT audit.audit_table($1, BOOLEAN 't', BOOLEAN 't', $2, $3, NULL);
+
+$body$
+LANGUAGE sql;
+
+-- comments
+COMMENT ON FUNCTION audit.audit_weak_entity (regclass, text[], text[][]) IS $body$
+
+Add auditing support to a table of weak entity, version 1. Weak entities (thus, without code_column) with ignored columns
+
+Arguments:
+    sq_table_name: table name, schema qualified if not on search_path
+    ignored_cols: Columns to exclude from update diffs, ignore updates that change only ignored cols
+    table_relations: Text representation of relations between weaker entities with stronger ones
+
+$body$;
+
+
+/*
+ *  Add auditing support to a table of weak entity, version 2.
+ *  Weak entities (thus, without code_column) WITHOUT ignored columns
+ *  Pg doesn't allow variadic calls with 0 params, so provide a wrapper.
+ */
+CREATE OR REPLACE FUNCTION audit.audit_weak_entity (sq_table_name regclass, table_relations text[][])
+    RETURNS void
+    AS $body$
+    SELECT audit.audit_table($1, BOOLEAN 't', BOOLEAN 't', ARRAY[]::text[], $2, NULL);
+
+$body$
+LANGUAGE sql;
+
+-- comments
+COMMENT ON FUNCTION audit.audit_weak_entity (regclass, text[]) IS $body$
+
+Add auditing support to a table of weak entity, version 2. Weak entities (thus, without code_column) without ignored columns
+
+Arguments:
+    sq_table_name: table name, schema qualified if not on search_path
+    table_relations: Text representation of relations between weaker entities with stronger ones
+
+$body$;
