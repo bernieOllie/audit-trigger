@@ -19,7 +19,7 @@ For registering tables that have no meaning independent of primary ones - referr
 Due to relational integrity constraints of this audit system,
 make sure to register primary tables before their related weak ones.
 
-And that is it! You are now capable of retrieving audit information from the primary table and its weaker ones with a simple SELECT query, by filtering through the code value of the primary one.
+And that is it! You are now capable of retrieving audit information from the primary table and its weaker ones with a simple SELECT query on table "audit.logged_actions", by filtering through the code value of the primary one.
 
 ### Check out the full story behind this implementation, including a working example, at:
 
