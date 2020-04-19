@@ -16,8 +16,7 @@ For registering tables that have no meaning independent of primary ones - referr
 - "relationship direction": if weak table points to strong one, it is called 'DIRECT' relation; if strong points to weak, it is called 'INVERSE'
 - it is also necessary to inform which column has the foreign key constraint that links them
 
-Due to relational integrity constraints of this audit system,
-make sure to register primary tables before their related weak ones.
+Due to referential integrity constraints of this audit system, make sure to register primary tables before their related weak ones.
 
 And that is it! You are now capable of retrieving audit information from the primary table and its weaker ones with a simple SELECT query on table "audit.logged_actions", by filtering through the code value of the primary one.
 
